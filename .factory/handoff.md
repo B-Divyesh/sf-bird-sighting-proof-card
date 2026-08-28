@@ -1,66 +1,48 @@
-# Handoff — Bird Sighting Proof Card repair
+# Verification handoff — FAIL
 
-## Repair scope
+Work order: `bird-sighting-proof-card-verify-3`
 
-Work order: `bird-sighting-proof-card-repair-1`
+Tested commit: `d3e7e227590ac04b1a1e1230f80f098a0246966e`
 
-Base verified candidate: `9261d9f29c902221bdaef0a45bff984234ea1138`
-Verifier report: [`.factory/verification.md`](verification.md)
+Tested URL: <https://bird-sighting-proof-card.sociobot.in/>
 
-This repair preserves the offline, local-first PWA and fixes all four release-blocking findings from the independent verification.
+Date: 2026-08-28
 
-- **Coordinate text leak:** PDF, JSON, and the share-safe preview now redact latitude/longitude-looking pairs in place labels, notes, candidate text, titles, field marks, and evidence filenames unless the user selected Exact and acknowledged its warning. The local draft remains unchanged.
-- **Image GPS leak:** JPEG APP1/APP13, PNG EXIF/text, and WebP EXIF/XMP metadata containers are removed before an image is embedded in JSON. Pixel evidence is not recompressed. Audio remains original and is clearly disclosed as such in-product, README, and Privacy.
-- **Impossible coordinates:** Export validation is now independent of HTML `min`/`max`: it requires a complete finite pair with latitude in `[-90, 90]` and longitude in `[-180, 180]`. `sharedCoordinates` also refuses invalid values as a defense in depth.
-- **Production cache policy:** `public/staticwebapp.config.json` is the Azure Static Web Apps deployment configuration. It makes hashed `/assets/*` responses `public, max-age=31536000, immutable`, while `/sw.js` and the manifest are `no-cache, must-revalidate` for reliable updates.
+Result: **FAIL — do not promote**
 
-## Regression coverage
+The live document, application bundles, service worker, manifest, privacy page,
+and terms page match the candidate production build byte-for-byte. The build,
+all declared local gates, 14 Playwright tests, offline reload, service-worker
+update flow, PWA installability, and performance budgets pass. Lighthouse
+scored 95/100/100/100 for performance/accessibility/best practices/SEO.
 
-- `tests/export.test.ts` verifies coordinate redaction in both actual PDF and JSON bytes, JPEG EXIF removal in encoded evidence, exact opt-in behavior, and the shipped Azure response policy.
-- `tests/privacy.test.ts` covers coordinate-pair redaction in both coordinate orders, invalid ranges, incomplete input, and the shared-coordinate guard.
-- Playwright covers the default browser export/preview redaction, blocked `91, 181` exact export, keyboard focus, reduced motion, a true 390px mobile viewport without horizontal overflow, dark/light axe scans, persistence, and first-visit service-worker offline reload.
+Release blockers found by independent cases:
 
-## Verification evidence
+- **P1:** Default Region-only preview, JSON, and PDF expose exact DMS coordinates
+  such as `58°57'04.4"N 2°45'04.4"W`; structured `location` still says `null`.
+- **P1:** A valid JPEG's standard text comment containing exact GPS values is
+  preserved byte-for-byte in default JSON export, contradicting the privacy
+  policy. A valid WAV's standard metadata comment is also exported unchanged
+  without exact-location opt-in.
+- **P2:** Three accepted 20 MB audio files produce an 80,001,240-byte JSON export
+  that the same app rejects under its 80 MB import limit.
+- **P2:** The Add evidence and Import JSON inputs receive keyboard focus while
+  clipped to 1 × 1 px, with no visible focus treatment on their labels.
+- **P3:** Several mobile navigation/footer link targets are under 44 px, and CSP,
+  Permissions-Policy, and framing protection are absent.
 
-Run from a clean dependency install in this repair workspace:
+Full commands, hashes, browser evidence, passing checks, and remediation scope
+are in [`.factory/verification-3.md`](verification-3.md). No product code was
+modified during verification; only this handoff and the verification report
+were changed.
 
-```sh
-npm ci                         # 0 audit vulnerabilities
-npm run typecheck              # passed
-npm run lint                   # passed (TypeScript no-emit gate)
-npm test                       # 3 files, 12 tests passed
-npm run build                  # passed; dist/index.html present
-```
-
-Production build result:
-
-- JavaScript: `34.69 kB` / `12.26 kB` gzip (under the 200 kB static budget).
-- Main CSS: `17.61 kB` / `4.90 kB` gzip (under the 50 kB static budget).
-- `dist/staticwebapp.config.json` was parsed after build and its immutable asset and revalidating service-worker header values were asserted.
-
-Playwright 1.58.2 Chromium verification passed for desktop and the explicit 390 × 844 mobile configuration. It includes keyboard focus/visible 3px focus outline, reduced-motion transition removal, no mobile horizontal overflow, serious/critical axe findings = 0 in light and dark modes, privacy export paths, and `context.setOffline(true)` reload after service-worker control.
-
-The old live candidate was also checked before repair: its asset response was `Cache-Control: public, must-revalidate, max-age=30`, reproducing the verifier cache finding. The deployed repair must instead return the policy specified above; this is checked again after deployment.
-
-## Deployment and live identity
-
-Deployed successfully with `/opt/fleet/lib/deploy-static.sh bird-sighting-proof-card dist` from repair commit `745ff5b`.
-
-- Live `index.html` SHA-256: `85841bad74caeffe27023193edcd6dd6f6f9f5690d697509e0959a53234fb91a` — identical to `dist/index.html`.
-- Live `/assets/main-BgWrjoba.js` SHA-256: `cdb97f93ea479cbab474711e4af10a0421c76b6474a87376bccaa51d8fbd26fb` — identical to the built asset.
-- Live hashed asset header: `Cache-Control: public, max-age=31536000, immutable`.
-- Live service-worker header: `Cache-Control: no-cache, must-revalidate`.
-- Live root and service worker returned HTTP 200 with HTTPS, HSTS, `nosniff`, and `strict-origin-when-cross-origin` referrer policy.
-
-## Build and deploy
+Re-run from a clean checkout with:
 
 ```sh
+npm ci
+npm test
+npm run typecheck
+npm run lint
 npm run build
-/opt/fleet/lib/deploy-static.sh bird-sighting-proof-card dist
+npm run test:e2e
 ```
-
-The deployment class remains `static`; publish `dist/`. No backend, tracking, or third-party runtime service was added.
-
-## Known boundary
-
-Metadata removal protects exported supported image formats from the reported GPS path. Original audio is intentionally retained for evidentiary value and may carry metadata outside this product's image-GPS threat model; users are told to review it before sharing.
