@@ -46,6 +46,20 @@ in `/tmp/bird-polish2-commit-mKKbD4` passed `npm ci`, `npm test` (14), and
 
 ## Live evidence
 
-Recorded after deployment in this work order.
+Deployed with `/opt/fleet/lib/deploy-static.sh bird-sighting-proof-card dist`.
+The Azure deployment id was `f31f6412-2b08-4682-94d6-0cbf1846a364`.
+
+Cold production checks on `https://bird-sighting-proof-card.sociobot.in/`
+passed: `verify-url.sh` reported HTTP 200, zero console errors, English lang,
+one h1, one main, and no missing image alt text. Its captures are
+`.factory/evidence/polish-2/live/screenshot-desktop.png` and
+`.factory/evidence/polish-2/live/screenshot-mobile.png`; the filled demo
+capture is `.factory/evidence/polish-2/live/demo-mobile.png`.
+
+Manual Playwright live checks confirmed the filled demo banner/reset/start-real
+controls, heading focus and title announcement on Privacy, the complete offline
+canonical/social/shared shell, and a styled unknown-route response with HTTP
+404 and focused h1. Production serves `bird-record-v7`, immutable hashed
+assets, and the expected CSP. No known gaps remain.
 
 Known gaps: none.

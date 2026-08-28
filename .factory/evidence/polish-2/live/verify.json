@@ -1,0 +1,14 @@
+{
+  "url": "https://bird-sighting-proof-card.sociobot.in/",
+  "loadMs": 677,
+  "errors": [],
+  "a11y": {
+    "title": "Bird Sighting Proof Card — make a private bird record",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 3296
+  }
+}
