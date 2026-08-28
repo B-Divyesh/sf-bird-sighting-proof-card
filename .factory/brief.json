@@ -1,0 +1,8 @@
+{
+  "slug": "bird-sighting-proof-card",
+  "title": "Bird Sighting Proof Card",
+  "artifact_class": "pwa-offline",
+  "smallest_useful_product": "Offline proof-card builder with photo/audio attachments, extracted timestamp, rounded location options, field-mark checklist, candidate/confidence notes, and shareable PDF/JSON.",
+  "monetization": "free",
+  "constraints": "Sensitive-species and nesting locations require safe defaults; do not imply an identification is authoritative; user media and coordinates remain local until export."
+}
