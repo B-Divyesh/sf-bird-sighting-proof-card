@@ -1,73 +1,38 @@
-# Repair handoff — PASS
+# Review handoff — FAIL
 
-Work order: `bird-sighting-proof-card-polish-1`
-
+Work order: `bird-sighting-proof-card-review-2`
 Date: 2026-08-28
+Reviewed commit: `d4d5a7a2d3eb2cd8acad2e64b1102930ee3de3b2`
 
-Live URL: <https://bird-sighting-proof-card.sociobot.in/>
-
-Demo URL: <https://bird-sighting-proof-card.sociobot.in/demo/>
-
-Deployed product commit: `92804ca`
-
-## Completed
-
-All F-1-1 through F-1-15 findings are fixed. Retained verification findings for location leakage, attachment metadata, import size, keyboard focus, mobile targets, and browser policies are also fixed.
-
-The first screen now names the birding job, visitor, sample action, result, and three concrete facts. The cartographic field-notebook identity remains intact.
-
-The demo has realistic photo and audio evidence. It uses `demo:bird-proof-card`, supports reset and start-real actions, and reloads offline.
-
-Default exports redact common coordinate formats. Known metadata containers are removed from JPEG, PNG, WebP, MP3, and WAV evidence copies.
-
-Every visitor claim is registered in `.factory/claims.json`. Each claim has one tagged browser test against the demo.
-
-Home, demo, privacy, terms, offline, and 404 use complete semantic shells. Known routes have distinct metadata; unknown paths return the designed 404 with HTTP 404.
+No product code was changed. This review added `.factory/review-2.md` and
+updated this handoff.
 
 ## Verification
 
-From a fresh detached clone:
+- Opened the live site cold at 390 × 844 and 1440 × 900.
+- Exercised live `/demo/`, including its filled sample, banner, reset/start-real
+  controls, same-origin requests, and console check.
+- Created a clean temporary clone, ran `npm ci`, `npm test` (14 passed), and
+  `npm run build` (produced `dist/`).
+- Ran every command in `.factory/claims.json` independently. All ten passed in
+  both Chromium desktop and 390 px mobile projects.
+- Crawled links and inspected live metadata, headers, routes, source, tests,
+  and every prior review/polish/handoff record.
 
-```sh
-npm ci
-npm test
-npm run typecheck
-npm run lint
-npm run build
-npm run test:e2e
-```
+## Open findings
 
-Results:
+See `.factory/review-2.md` for evidence and exact fixes.
 
-- 14 unit tests passed.
-- 10 claim commands passed independently on desktop and mobile.
-- 38 full Playwright tests passed on desktop and 390 px mobile.
-- `dist/` was produced with `index.html` at its root.
-- Initial JS is 41.38 kB raw and 14.32 kB gzip.
-- Initial CSS is 19.54 kB raw and 5.29 kB gzip.
-- Local Lighthouse: 98 performance, 100 accessibility, 100 best practices, 100 SEO.
-- Live Lighthouse: 100 performance, 100 accessibility, 100 best practices, 100 SEO.
-- Live FCP 0.9 s, LCP 1.2 s, TBT 20 ms, and CLS 0.
-- Live route axe checks found no serious or critical violations.
-- Live verify-url found no console errors or semantic failures.
-- Live offline reload retained the filled demo.
-- Live requests during save/export were same-origin GET requests only.
-- Live `/no-such-page` returned HTTP 404.
-- Live 12 MB JSON boundary exported to 16,001,211 bytes and imported successfully under CSP.
+- F-2-1 BLOCKING: “No API key or backend is needed.” and “An app update is
+  ready.” are not declared claims and have no tagged observable test.
+- F-2-2 minor: navigation leaves focus on `body` and announces no route change.
+- F-2-3 minor: 404/offline routes lack complete metadata; offline lacks the
+  shared header/footer shell.
+- F-2-4 minor: one storage hint uses jargon and its button does not name its
+  result.
 
-Full evidence and finding mappings are in [`.factory/polish-1.md`](polish-1.md). Screenshots and Lighthouse reports are under `.factory/evidence/`.
+## Next steps
 
-## Deployment
-
-Static deployment used:
-
-```sh
-npm run build
-/opt/fleet/lib/deploy-static.sh bird-sighting-proof-card /work/repo/dist
-```
-
-Final product deployment id: `80102ec1-23ce-425c-9654-cb6f5ef8f06a`. It delivered the CSP-safe import build from `92804ca`.
-
-## Known gaps and next steps
-
-No reviewed finding or required acceptance item remains open. No follow-up is required for this perfection-loop round.
+Implement the documented fixes, add the two new claim tests, and repeat the
+full adversarial checklist from a clean clone. Do not claim completion until
+the review has zero findings.
