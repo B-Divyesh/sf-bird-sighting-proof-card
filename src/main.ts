@@ -301,6 +301,14 @@ async function start() {
   }
 }
 byId('reload-app').addEventListener('click', () => location.reload());
-byId<HTMLButtonElement>('reset-demo')?.addEventListener('click', async () => { await resetDemoDatabase(); location.replace('/demo/?reset=1'); });
-byId<HTMLButtonElement>('start-real')?.addEventListener('click', async () => { await resetDemoDatabase(); location.href = '/#builder'; });
+byId<HTMLButtonElement>('reset-demo')?.addEventListener('click', async () => {
+  window.clearTimeout(saveTimer);
+  await resetDemoDatabase();
+  location.replace('/demo/?reset=1');
+});
+byId<HTMLButtonElement>('start-real')?.addEventListener('click', async () => {
+  window.clearTimeout(saveTimer);
+  await resetDemoDatabase();
+  location.href = '/#builder';
+});
 void start();
