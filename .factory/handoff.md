@@ -37,10 +37,15 @@ its desktop and mobile captures are
 The initial JavaScript bundle is 40.77 kB raw / 14.06 kB gzip and main CSS is
 19.54 kB raw / 5.29 kB gzip. The 768 px AVIF hero remains 22.4 kB.
 
-## Clean-clone and live evidence
+## Clean-clone evidence
 
-After the repair commit is pushed, repeat the commands in every entry of
-`.factory/claims.json` from a fresh clone, deploy the static `dist/` output,
-and record the final live cold check below.
+A fresh `git clone --no-local` at `6e3a43db2988a6e8c37765f19ba4310ca62483b9`
+in `/tmp/bird-polish2-commit-mKKbD4` passed `npm ci`, `npm test` (14), and
+`npm run build`. It then ran every one of the twelve exact commands in
+`.factory/claims.json`; each passed on desktop and 390 px mobile.
+
+## Live evidence
+
+Recorded after deployment in this work order.
 
 Known gaps: none.

@@ -28,5 +28,6 @@ Review report: `f462796c72ae49c679d63390920872a67d47fe51`
 - Local unit/type/build: `npm test` (14), `npm run typecheck`, `npm run lint`, and `npm run build` passed.
 - Browser: `tests/e2e/app.spec.ts --workers=1` passed 22 checks and `tests/e2e/claims.spec.ts --workers=1` passed 24 checks across desktop and 390 px mobile.
 - Local screenshots: `.factory/evidence/polish-2/local/screenshot-desktop.png`
-  and `.factory/evidence/polish-2/local/screenshot-mobile.png`. Final live
-  cold checks are recorded in `.factory/handoff.md` after deployment.
+  and `.factory/evidence/polish-2/local/screenshot-mobile.png`. A fresh clone
+  ran all twelve manifest commands successfully; final live cold checks are
+  recorded in `.factory/handoff.md` after deployment.
