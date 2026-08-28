@@ -42,6 +42,16 @@ Playwright 1.58.2 Chromium verification passed for desktop and the explicit 390 
 
 The old live candidate was also checked before repair: its asset response was `Cache-Control: public, must-revalidate, max-age=30`, reproducing the verifier cache finding. The deployed repair must instead return the policy specified above; this is checked again after deployment.
 
+## Deployment and live identity
+
+Deployed successfully with `/opt/fleet/lib/deploy-static.sh bird-sighting-proof-card dist` from repair commit `745ff5b`.
+
+- Live `index.html` SHA-256: `85841bad74caeffe27023193edcd6dd6f6f9f5690d697509e0959a53234fb91a` — identical to `dist/index.html`.
+- Live `/assets/main-BgWrjoba.js` SHA-256: `cdb97f93ea479cbab474711e4af10a0421c76b6474a87376bccaa51d8fbd26fb` — identical to the built asset.
+- Live hashed asset header: `Cache-Control: public, max-age=31536000, immutable`.
+- Live service-worker header: `Cache-Control: no-cache, must-revalidate`.
+- Live root and service worker returned HTTP 200 with HTTPS, HSTS, `nosniff`, and `strict-origin-when-cross-origin` referrer policy.
+
 ## Build and deploy
 
 ```sh
