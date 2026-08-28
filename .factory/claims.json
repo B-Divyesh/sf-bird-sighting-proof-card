@@ -68,5 +68,19 @@
     "where": "landing footer, design record",
     "test": "npm run test:e2e -- --grep @claim:original-art-provenance",
     "sandbox": "fresh /demo/ plus repository provenance files; match the shipped hero to the recorded source and prompt metadata"
+  },
+  {
+    "id": "no-api-or-backend",
+    "claim": "No API key or backend is needed.",
+    "where": "README local-run instructions",
+    "test": "npm run test:e2e -- --grep @claim:no-api-or-backend",
+    "sandbox": "fresh demo; save and export while recording requests; assert no credentials, non-GET request, or remote origin is used"
+  },
+  {
+    "id": "app-update",
+    "claim": "An app update is ready.",
+    "where": "in-app update toast",
+    "test": "npm run test:e2e -- --grep @claim:app-update",
+    "sandbox": "replace the service-worker response with a fixture; assert the update toast, reload it, and confirm the replacement worker controls the reloaded page"
   }
 ]

@@ -97,6 +97,32 @@ test('@claim:local-only-network sends no evidence or third-party request', async
   expect(requests.every(request => request.method === 'GET')).toBe(true);
 });
 
+test('@claim:no-api-or-backend saves and exports without credentials or a backend', async ({ page }) => {
+  const requests: { url: string; method: string; authorization: string | undefined }[] = [];
+  page.on('request', request => requests.push({ url: request.url(), method: request.method(), authorization: request.headers().authorization }));
+  await page.goto('/demo/');
+  await page.getByRole('button', { name: 'Save on this device' }).click();
+  await downloadText(page, 'Export JSON + media');
+  const origin = new URL(page.url()).origin;
+  expect(requests.every(request => new URL(request.url).origin === origin && request.method === 'GET' && !request.authorization)).toBe(true);
+  expect(await page.evaluate(() => Object.keys(localStorage).some(key => /api.?key|token|secret/i.test(key)))).toBe(false);
+});
+
+test('@claim:app-update shows the update action and reloads under the new worker', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/demo/');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  if (!await page.evaluate(() => Boolean(navigator.serviceWorker.controller))) await page.reload();
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  await page.route('**/sw.js?claim-update=1', route => route.fulfill({ contentType: 'application/javascript', body: `self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));self.addEventListener('fetch', () => {});` }));
+  await page.evaluate(() => navigator.serviceWorker.register('/sw.js?claim-update=1'));
+  await expect(page.locator('#update-toast')).toBeVisible();
+  await page.getByRole('button', { name: 'Reload the updated app' }).click();
+  await page.waitForLoadState('domcontentloaded');
+  await expect(page.locator('#card-title')).toHaveValue('Distant wader at Deerness');
+  await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller?.scriptURL || '')).toContain('claim-update=1');
+});
+
 test('@claim:safe-default-export redacts location text and attachment metadata', async ({ page }) => {
   await page.goto('/demo/');
   await page.locator('#place-label').fill(`Nest at 58°57'04.4"N 2°45'04.4"W`);

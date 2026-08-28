@@ -2,6 +2,11 @@
 
 Date: 2026-08-28
 
+Polish 2 changed the evidence hint to “Backup exports remove known location
+details from supported files.” (10 words) and renamed the storage action
+“Show storage details” (3 words). The new route announcements are document
+titles, not visitor-facing marketing copy.
+
 The first screen says what the tool makes, who uses it, and what the sample action opens. The headline has five words. The supporting sentence has 14 words.
 
 No landing or README sentence exceeds 22 words. No sentence uses the banned marketing words.
@@ -21,7 +26,7 @@ No landing or README sentence exceeds 22 words. No sentence uses the banned mark
 | 10 | Add a time, broad place, evidence file, and possible species. |
 | 6 | You can save an incomplete record. |
 | 5 | Files stay on this device. |
-| 9 | JSON exports remove known location metadata from supported files. |
+| 10 | Backup exports remove known location details from supported files. |
 | 4 | No evidence attached yet. |
 | 5 | When did you observe it? |
 | 10 | We’ll use photo metadata when available; you can correct it. |

@@ -1,5 +1,5 @@
-const VERSION = 'bird-record-v6';
-const SHELL = ['/', '/index.html', '/demo/', '/404.html', '/offline.html', '/offline.css', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/assets/social-card.jpg', '/assets/hero-field-map-768.avif', '/assets/hero-field-map-1280.avif', '/assets/hero-field-map-768.webp', '/assets/hero-field-map-1280.webp', '/privacy/', '/terms/'];
+const VERSION = 'bird-record-v7';
+const SHELL = ['/', '/index.html', '/demo/', '/404.html', '/offline.html', '/offline.css', '/offline.js', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/assets/social-card.jpg', '/assets/hero-field-map-768.avif', '/assets/hero-field-map-1280.avif', '/assets/hero-field-map-768.webp', '/assets/hero-field-map-1280.webp', '/privacy/', '/terms/'];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(VERSION);

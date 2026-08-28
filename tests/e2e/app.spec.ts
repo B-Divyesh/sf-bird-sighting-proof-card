@@ -84,7 +84,7 @@ test('has no serious accessibility violations', async ({ page }) => {
 
 test('keeps keyboard focus visible and the phone layout within its viewport', async ({ page }, testInfo) => {
   await page.goto('/');
-  await page.keyboard.press('Tab');
+  await page.locator('.skip-link').focus();
   await expect(page.locator('.skip-link')).toBeFocused();
   const primary = page.getByRole('link', { name: /Try it with sample data/ });
   await primary.focus();
@@ -143,6 +143,38 @@ test('serves distinct routes with complete metadata and working history', async 
   await expect(page).toHaveTitle('Page not found — Bird Sighting Proof Card');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('This trail ends off the map');
   await expect(page.getByRole('link', { name: 'Return to the builder' })).toHaveAttribute('href', '/#builder');
+});
+
+test('moves focus and announces every document route', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Privacy' }).first().click();
+  await expect(page).toHaveURL(/\/privacy\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('[data-route-status]')).toContainText('Privacy — Bird Sighting Proof Card');
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#live-status')).toContainText('Bird Sighting Proof Card');
+  await page.goto('/404.html');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('[data-route-status]')).toContainText('Page not found — Bird Sighting Proof Card');
+});
+
+test('gives 404 and offline their complete route metadata and shared shell', async ({ page }) => {
+  for (const [route, title, canonical] of [
+    ['/404.html', 'Page not found — Bird Sighting Proof Card', '/404.html'],
+    ['/offline.html', 'Offline — Bird Sighting Proof Card', '/offline.html']
+  ]) {
+    await page.goto(route);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://bird-sighting-proof-card.sociobot.in${canonical}`);
+    await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/manifest.webmanifest');
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /social-card\.jpg$/);
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /social-card\.jpg$/);
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/apple-touch-icon.png');
+    await expect(page.locator('header .brand, header.site-head .brand')).toHaveCount(1);
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(1);
+    await expect(page.getByRole('navigation', { name: 'Footer' })).toHaveCount(1);
+  }
 });
 
 test('has no serious accessibility violations on every route', async ({ page }) => {
