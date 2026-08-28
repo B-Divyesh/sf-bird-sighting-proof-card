@@ -151,6 +151,11 @@ test('@claim:geolocation-on-click requests location only from its named action',
 
 test('@claim:portable-exports downloads PDF and round-trips the 12 MB JSON boundary', async ({ page }) => {
   test.setTimeout(90_000);
+  await page.route('**/*', async route => {
+    if (route.request().resourceType() !== 'document') return route.continue();
+    const response = await route.fetch();
+    await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" } });
+  });
   await page.goto('/demo/');
   const pdf = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download PDF' }).click();

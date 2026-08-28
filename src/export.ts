@@ -10,6 +10,22 @@ const blobToDataUrl = async (blob: Blob) => {
   return `data:${blob.type || 'application/octet-stream'};base64,${btoa(binary)}`;
 };
 
+const dataUrlToBlob = (data: string) => {
+  const match = /^data:([^;,]*)(;base64)?,([\s\S]*)$/.exec(data);
+  if (!match) throw new Error('Imported evidence must be embedded in the JSON file.');
+  const type = match[1] || 'application/octet-stream';
+  try {
+    if (match[2]) {
+      const binary = atob(match[3]);
+      const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+      return new Blob([bytes], { type });
+    }
+    return new Blob([decodeURIComponent(match[3])], { type });
+  } catch {
+    throw new Error('An embedded evidence file is not valid base64 data.');
+  }
+};
+
 export async function jsonBlob(draft: SightingDraft) {
   const budgetIssue = attachmentBudgetIssue(draft.attachments.map(file => file.size));
   if (budgetIssue) throw new Error(budgetIssue);
@@ -87,7 +103,7 @@ export async function importedDraft(file: File): Promise<SightingDraft> {
   const card = parsed.card;
   const attachments = await Promise.all((card.attachments || []).map(async (item: {name:string;type:string;data:string;capturedAt?:string}) => {
     if (typeof item.data !== 'string' || !item.data.startsWith('data:')) throw new Error('Imported evidence must be embedded in the JSON file.');
-    const response = await fetch(item.data); const blob = await response.blob();
+    const blob = dataUrlToBlob(item.data);
     return { id: crypto.randomUUID(), name: item.name, type: item.type, size: blob.size, lastModified: Date.now(), capturedAt: item.capturedAt, blob };
   }));
   const budgetIssue = attachmentBudgetIssue(attachments.map(item => item.size));
