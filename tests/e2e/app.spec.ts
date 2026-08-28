@@ -33,7 +33,7 @@ test('blocks exact coordinates without a second consent', async ({ page }) => {
   await page.getByRole('button', { name: 'Download PDF' }).click();
   await expect(page.locator('#error-summary')).toContainText('Acknowledge the exact-location warning');
   await page.getByLabel('I understand and choose to include exact coordinates.').check();
-  await expect(page.locator('#preview-content')).toContainText('58.95123, -2.75123');
+  await expect(page.locator('#preview-content')).toContainText('58.951234, -2.751234');
 });
 
 test('has no serious accessibility violations', async ({ page }) => {
@@ -41,6 +41,9 @@ test('has no serious accessibility violations', async ({ page }) => {
   const results = await new AxeBuilder({ page: page as never }).analyze();
   const serious = results.violations.filter(item => item.impact === 'serious' || item.impact === 'critical');
   expect(serious).toEqual([]);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  const darkResults = await new AxeBuilder({ page: page as never }).analyze();
+  expect(darkResults.violations.filter(item => item.impact === 'serious' || item.impact === 'critical')).toEqual([]);
 });
 
 test('reloads offline after the first visit', async ({ page, context }) => {

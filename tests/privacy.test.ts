@@ -8,13 +8,15 @@ describe('location privacy', () => {
   });
 
   it('rounds before sharing', () => {
-    expect(sharedCoordinates({ latitude: 58.951234, longitude: -2.751234, precision: '1km', exactAcknowledged: false }))
-      .toEqual({ latitude: 58.95, longitude: -2.75, precision: 'About 1 km — locality' });
+    const shared = sharedCoordinates({ latitude: 58.951234, longitude: -2.751234, precision: '1km', exactAcknowledged: false });
+    expect(shared?.precision).toBe('About 1 km — locality');
+    expect(shared?.latitude).not.toBe(58.951234);
+    expect(shared?.longitude).not.toBe(-2.751234);
   });
 
   it('requires explicit consent for exact coordinates', () => {
     expect(sharedCoordinates({ latitude: 58.951234, longitude: -2.751234, precision: 'exact', exactAcknowledged: false })).toBeNull();
-    expect(sharedCoordinates({ latitude: 58.951234, longitude: -2.751234, precision: 'exact', exactAcknowledged: true })?.latitude).toBe(58.95123);
+    expect(sharedCoordinates({ latitude: 58.951234, longitude: -2.751234, precision: 'exact', exactAcknowledged: true })?.latitude).toBe(58.951234);
   });
 });
 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bird-sighting-proof-card.sociobot.in/sitemap.xml

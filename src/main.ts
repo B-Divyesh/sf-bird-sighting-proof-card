@@ -1,4 +1,5 @@
 import './styles.css';
+import './contrast.css';
 import { deleteDraft, getDrafts, saveDraft } from './db';
 import { jpegCapturedAt } from './exif';
 import { importedDraft, jsonBlob, pdfBlob } from './export';
@@ -213,7 +214,7 @@ byId('export-json').addEventListener('click', async () => { if (showExportIssues
 
 input('import-file').addEventListener('change', async event => {
   const file = (event.target as HTMLInputElement).files?.[0]; if (!file) return;
-  try { draft = await importedDraft(file); await saveDraft(draft); drafts = await getDrafts(); populateForm(); renderDrafts(); document.querySelector('#builder')?.scrollIntoView(); announce('Proof Card JSON imported as a new local draft.'); }
+  try { if (file.size > 80_000_000) throw new Error('That import is over the 80 MB safety limit.'); draft = await importedDraft(file); await saveDraft(draft); drafts = await getDrafts(); populateForm(); renderDrafts(); document.querySelector('#builder')?.scrollIntoView(); announce('Proof Card JSON imported as a new local draft.'); }
   catch (error) { announce(error instanceof Error ? error.message : 'The JSON file could not be imported.'); }
   input('import-file').value = '';
 });

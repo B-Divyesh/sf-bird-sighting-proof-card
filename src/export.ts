@@ -78,6 +78,7 @@ export async function importedDraft(file: File): Promise<SightingDraft> {
   if (parsed?.format !== 'bird-sighting-proof-card' || parsed?.version !== 1 || !parsed.card) throw new Error('This is not a Proof Card v1 JSON export.');
   const card = parsed.card;
   const attachments = await Promise.all((card.attachments || []).map(async (item: {name:string;type:string;data:string;capturedAt?:string}) => {
+    if (typeof item.data !== 'string' || !item.data.startsWith('data:')) throw new Error('Imported evidence must be embedded in the JSON file.');
     const response = await fetch(item.data); const blob = await response.blob();
     return { id: crypto.randomUUID(), name: item.name, type: item.type, size: blob.size, lastModified: Date.now(), capturedAt: item.capturedAt, blob };
   }));

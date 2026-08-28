@@ -1,0 +1,5 @@
+/* The connectivity band stays ink-dark in both color schemes. */
+.trust-strip {
+  background: #18312b;
+  color: #fffdf6;
+}

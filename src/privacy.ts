@@ -8,15 +8,17 @@ export const precisionLabels: Record<Precision, string> = {
   exact: 'Exact coordinates — sensitive'
 };
 
-const decimals: Partial<Record<Precision, number>> = { '10km': 1, '1km': 2, '100m': 3, exact: 5 };
-
 export function sharedCoordinates(draft: Pick<SightingDraft, 'latitude' | 'longitude' | 'precision' | 'exactAcknowledged'>) {
   if (draft.precision === 'region' || draft.latitude === null || draft.longitude === null) return null;
   if (draft.precision === 'exact' && !draft.exactAcknowledged) return null;
-  const places = decimals[draft.precision] ?? 0;
+  if (draft.precision === 'exact') return { latitude: draft.latitude, longitude: draft.longitude, precision: precisionLabels.exact };
+  const metres = { '10km': 10_000, '1km': 1_000, '100m': 100 }[draft.precision];
+  const latitudeStep = metres / 111_320;
+  const longitudeStep = metres / (111_320 * Math.max(0.1, Math.cos(draft.latitude * Math.PI / 180)));
+  const places = draft.precision === '10km' ? 3 : draft.precision === '1km' ? 4 : 5;
   return {
-    latitude: Number(draft.latitude.toFixed(places)),
-    longitude: Number(draft.longitude.toFixed(places)),
+    latitude: Number((Math.round(draft.latitude / latitudeStep) * latitudeStep).toFixed(places)),
+    longitude: Number((Math.round(draft.longitude / longitudeStep) * longitudeStep).toFixed(places)),
     precision: precisionLabels[draft.precision]
   };
 }
