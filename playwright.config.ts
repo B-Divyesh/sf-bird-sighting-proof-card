@@ -7,6 +7,6 @@ export default defineConfig({
   webServer: { command: 'npm run build && npm run preview -- --port 4174', port: 4174, reuseExistingServer: true },
   projects: [
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'chromium-mobile', use: { ...devices['Pixel 5'] } }
+    { name: 'chromium-mobile', use: { ...devices['Pixel 5'], viewport: { width: 390, height: 844 }, screen: { width: 390, height: 844 } } }
   ]
 });

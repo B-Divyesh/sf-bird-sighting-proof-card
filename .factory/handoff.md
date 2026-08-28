@@ -1,63 +1,56 @@
-# Handoff — Bird Sighting Proof Card
+# Handoff — Bird Sighting Proof Card repair
 
-## Independent verification 2 — **FAIL**
+## Repair scope
 
-Candidate: `9261d9f29c902221bdaef0a45bff984234ea1138`<br>
-Verified URL: <https://bird-sighting-proof-card.sociobot.in/><br>
-Report: [`.factory/verification.md`](verification.md)
+Work order: `bird-sighting-proof-card-repair-1`
 
-Do **not** promote this candidate. Fresh clean-checkout and live-deployment
-verification found two P1 privacy failures: default PDF/JSON export preserves
-an exact coordinate typed in the place label, and JSON includes original photo
-bytes unchanged so EXIF GPS can leak without the exact-location opt-in. A P2
-also allows impossible `91, 181` coordinates to export, and live hashed assets
-have only a 30-second non-immutable cache policy. The report contains exact
-reproduction evidence, passing checks, and required remediation.
+Base verified candidate: `9261d9f29c902221bdaef0a45bff984234ea1138`
+Verifier report: [`.factory/verification.md`](verification.md)
 
-Work order: `bird-sighting-proof-card-build-1`<br>
-Completed: 2026-08-28<br>
-Build output: `dist/` (static)
+This repair preserves the offline, local-first PWA and fixes all four release-blocking findings from the independent verification.
 
-## What shipped
+- **Coordinate text leak:** PDF, JSON, and the share-safe preview now redact latitude/longitude-looking pairs in place labels, notes, candidate text, titles, field marks, and evidence filenames unless the user selected Exact and acknowledged its warning. The local draft remains unchanged.
+- **Image GPS leak:** JPEG APP1/APP13, PNG EXIF/text, and WebP EXIF/XMP metadata containers are removed before an image is embedded in JSON. Pixel evidence is not recompressed. Audio remains original and is clearly disclosed as such in-product, README, and Privacy.
+- **Impossible coordinates:** Export validation is now independent of HTML `min`/`max`: it requires a complete finite pair with latitude in `[-90, 90]` and longitude in `[-180, 180]`. `sharedCoordinates` also refuses invalid values as a defense in depth.
+- **Production cache policy:** `public/staticwebapp.config.json` is the Azure Static Web Apps deployment configuration. It makes hashed `/assets/*` responses `public, max-age=31536000, immutable`, while `/sw.js` and the manifest are `no-cache, must-revalidate` for reliable updates.
 
-- A complete six-step proof-card workflow for evidence, observation time, privacy-controlled place, field marks, candidates/confidence, and local filing.
-- Image/audio attachments stored as blobs in IndexedDB, with preview, file limits, error feedback, deletion, and basic JPEG EXIF `DateTimeOriginal` extraction.
-- Safe location export: coordinates are withheld by default; approximate settings snap to 10 km, 1 km, or 100 m geographic grids; exact coordinates require an explicit warning acknowledgement. Sensitive-site cards carry a visible warning.
-- Live share-safe preview; validated, downloadable PDF review sheet; portable v1 JSON export/import with embedded original media and remote-reference rejection.
-- Local draft archive with autosave, resume, confirmed deletion, and empty/storage-error states.
-- Installable PWA manifest, 192/512 maskable icon, versioned service worker, hashed-asset precache, offline navigation fallback, and update toast.
-- Responsive topographic-cartography visual system with light/dark treatments and a generated original marsh illustration in AVIF/WebP. Prompt, review, and provenance are in `.factory/design.md` and `assets/src/`.
-- Static `/privacy/` and `/terms/` pages, refreshed README, MIT license, robots file, and sitemap.
+## Regression coverage
 
-## Verification
+- `tests/export.test.ts` verifies coordinate redaction in both actual PDF and JSON bytes, JPEG EXIF removal in encoded evidence, exact opt-in behavior, and the shipped Azure response policy.
+- `tests/privacy.test.ts` covers coordinate-pair redaction in both coordinate orders, invalid ranges, incomplete input, and the shared-coordinate guard.
+- Playwright covers the default browser export/preview redaction, blocked `91, 181` exact export, keyboard focus, reduced motion, a true 390px mobile viewport without horizontal overflow, dark/light axe scans, persistence, and first-visit service-worker offline reload.
 
-Commands run successfully from the repository root:
+## Verification evidence
+
+Run from a clean dependency install in this repair workspace:
 
 ```sh
-npm ci
-npm test
-npm run build
-npm run test:e2e
+npm ci                         # 0 audit vulnerabilities
+npm run typecheck              # passed
+npm run lint                   # passed (TypeScript no-emit gate)
+npm test                       # 3 files, 12 tests passed
+npm run build                  # passed; dist/index.html present
 ```
 
-- Unit tests: 5/5 passed (coordinate privacy, required export fields, PDF structure).
-- Playwright: 8/8 passed across Chromium desktop and Pixel 5-class mobile. Covered end-to-end save/export/reload, exact-location consent, light/dark axe scans, and `context.setOffline(true)` reload after the first visit.
-- Factory `verify-url.sh`: HTTP 200; title and `lang` present; exactly one `h1`; main landmark present; 0 images missing alt; 0 unlabeled buttons; 0 console/page errors.
-- Lighthouse 12.8.2 mobile-style local production run: Performance 100, Accessibility 100, Best Practices 100, SEO 100. FCP 0.9 s, LCP 1.5 s, TBT 0 ms, CLS 0.
-- Production payload: 31.07 KB JS (11.08 KB gzip), 17.61 KB CSS (4.90 KB gzip), 22 KB mobile AVIF hero / 43 KB mobile WebP hero. No runtime fonts or third-party dependencies.
-- `npm audit`: 0 vulnerabilities.
+Production build result:
 
-## Build/deploy notes
+- JavaScript: `34.69 kB` / `12.26 kB` gzip (under the 200 kB static budget).
+- Main CSS: `17.61 kB` / `4.90 kB` gzip (under the 50 kB static budget).
+- `dist/staticwebapp.config.json` was parsed after build and its immutable asset and revalidating service-worker header values were asserted.
 
-- Exact production command: `npm run build`.
-- Publish `dist/`; `dist/index.html` is at its root.
-- Serve `sw.js` with `Cache-Control: no-cache`; hashed `/assets/` files can be immutable.
-- Lighthouse figures are reproducible lab measurements against `vite preview` in this container, not field telemetry.
+Playwright 1.58.2 Chromium verification passed for desktop and the explicit 390 × 844 mobile configuration. It includes keyboard focus/visible 3px focus outline, reduced-motion transition removal, no mobile horizontal overflow, serious/critical axe findings = 0 in light and dark modes, privacy export paths, and `context.setOffline(true)` reload after service-worker control.
 
-## Known gaps and honest boundaries
+The old live candidate was also checked before repair: its asset response was `Cache-Control: public, must-revalidate, max-age=30`, reproducing the verifier cache finding. The deployed repair must instead return the policy specified above; this is checked again after deployment.
 
-- The PDF is a compact textual review card and lists evidence filenames; it does not embed photo pixels or audio. The JSON export is the complete packet and includes original media.
-- Timestamp extraction covers common, uncompressed JPEG EXIF. Other image/audio formats use the file-modified timestamp as an editable suggestion.
-- Browser storage quota varies by device. The UI caps individual evidence at 25 MB and imports at 80 MB, but users should export JSON backups for important observations.
-- Grid rounding is an approximate privacy control, not a guarantee against inference from prose, image landmarks, or embedded metadata in original files. The UI asks users to review before sharing.
-- Species identification and direct submissions to birding networks remain intentionally out of scope.
+## Build and deploy
+
+```sh
+npm run build
+/opt/fleet/lib/deploy-static.sh bird-sighting-proof-card dist
+```
+
+The deployment class remains `static`; publish `dist/`. No backend, tracking, or third-party runtime service was added.
+
+## Known boundary
+
+Metadata removal protects exported supported image formats from the reported GPS path. Original audio is intentionally retained for evidentiary value and may carry metadata outside this product's image-GPS threat model; users are told to review it before sharing.

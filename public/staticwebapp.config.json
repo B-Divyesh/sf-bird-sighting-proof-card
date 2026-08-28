@@ -1,0 +1,40 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/assets/*",
+      "/privacy/*",
+      "/terms/*",
+      "/offline.html",
+      "/sw.js",
+      "/manifest.webmanifest",
+      "/icon*",
+      "/robots.txt",
+      "/sitemap.xml"
+    ]
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "routes": [
+    {
+      "route": "/assets/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/sw.js",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    },
+    {
+      "route": "/manifest.webmanifest",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    }
+  ]
+}

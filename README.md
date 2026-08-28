@@ -11,7 +11,7 @@ Live product: [bird-sighting-proof-card.sociobot.in](https://bird-sighting-proof
 - Reads `DateTimeOriginal` from ordinary JPEG EXIF metadata when present and otherwise suggests the file date.
 - Withholds coordinates by default. Optional 10 km, 1 km, and 100 m settings snap to geographic grids; exact coordinates require a separate acknowledgement.
 - Records field marks, free-form notes, multiple candidate species, and a low/medium/high confidence for each.
-- Produces a compact PDF review sheet or a portable JSON backup containing original evidence files.
+- Produces a compact PDF review sheet or a portable JSON backup. Exported JPEG, PNG, and WebP evidence has EXIF/XMP/text metadata removed; audio remains original.
 - Imports its own v1 JSON format and works after the first visit without a network connection.
 
 It does not identify birds, publish sightings, submit to eBird, or make an observation authoritative.
@@ -45,13 +45,13 @@ npm run preview
 
 ## Privacy and data ownership
 
-There is no account, analytics, tracking, third-party runtime script, or CDN font. Data leaves the device only through a file the user explicitly exports. JSON exports contain original evidence and may reveal their embedded metadata; they should be handled like the source files. See `/privacy/` and `/terms/` in the built site.
+There is no account, analytics, tracking, third-party runtime script, or CDN font. Data leaves the device only through a file the user explicitly exports. Default exports redact coordinate-looking text; exact coordinates require the explicit exact-location acknowledgement. Exported JPEG, PNG, and WebP files have location-capable metadata containers removed, while audio stays original and should be handled like the source file. See `/privacy/` and `/terms/` in the built site.
 
 Clearing browser site data or uninstalling the PWA can remove local drafts. Export JSON for a portable backup.
 
 ## Deployment
 
-Deploy the contents of `dist/` as a static site with clean-directory routes enabled for `/privacy/` and `/terms/`. Serve `sw.js` with revalidation (`Cache-Control: no-cache`) so update checks work; hashed files under `assets/` can be immutable.
+Deploy the contents of `dist/` as a static site with clean-directory routes enabled for `/privacy/` and `/terms/`. The shipped `staticwebapp.config.json` configures Azure Static Web Apps to revalidate `sw.js` and the manifest while caching hashed files under `assets/` for one year as immutable.
 
 ## Design and provenance
 

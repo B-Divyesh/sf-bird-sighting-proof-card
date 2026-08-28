@@ -1,27 +1,31 @@
 import type { SightingDraft } from './types';
-import { localDateTime, precisionLabels, sharedCoordinates } from './privacy';
+import { metadataSafeBlob } from './media';
+import { localDateTime, precisionLabels, shareSafeText, sharedCoordinates } from './privacy';
 
-const blobToDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(String(reader.result));
-  reader.onerror = () => reject(reader.error);
-  reader.readAsDataURL(blob);
-});
+const blobToDataUrl = async (blob: Blob) => {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  return `data:${blob.type || 'application/octet-stream'};base64,${btoa(binary)}`;
+};
 
 export async function jsonBlob(draft: SightingDraft) {
   const location = sharedCoordinates(draft);
-  const attachments = await Promise.all(draft.attachments.map(async file => ({
-    name: file.name, type: file.type, size: file.size, capturedAt: file.capturedAt,
-    data: await blobToDataUrl(file.blob)
-  })));
+  const attachments = await Promise.all(draft.attachments.map(async file => {
+    const safeBlob = await metadataSafeBlob(file.blob);
+    return {
+      name: shareSafeText(draft, file.name), type: file.type, size: safeBlob.size, capturedAt: file.capturedAt,
+      data: await blobToDataUrl(safeBlob)
+    };
+  }));
   return new Blob([JSON.stringify({
     format: 'bird-sighting-proof-card', version: 1, exportedAt: new Date().toISOString(),
     card: {
-      title: draft.title || 'Uncertain bird sighting', observedAt: draft.observedAt,
-      timeSource: draft.timeSource, placeLabel: draft.placeLabel,
+      title: shareSafeText(draft, draft.title || 'Uncertain bird sighting'), observedAt: draft.observedAt,
+      timeSource: draft.timeSource, placeLabel: shareSafeText(draft, draft.placeLabel),
       location, locationPrecision: precisionLabels[draft.precision], sensitive: draft.sensitive,
-      fieldMarks: draft.fieldMarks, fieldNotes: draft.fieldNotes,
-      candidates: draft.candidates.filter(c => c.name.trim()).map(({ name, confidence, notes }) => ({ name, confidence, notes })),
+      fieldMarks: draft.fieldMarks.map(mark => shareSafeText(draft, mark)), fieldNotes: shareSafeText(draft, draft.fieldNotes),
+      candidates: draft.candidates.filter(c => c.name.trim()).map(({ name, confidence, notes }) => ({ name: shareSafeText(draft, name), confidence, notes: shareSafeText(draft, notes) })),
       notice: 'Evidence packet for review; not an authoritative identification.', attachments
     }
   }, null, 2)], { type: 'application/json' });
@@ -40,15 +44,15 @@ export function pdfBlob(draft: SightingDraft) {
   const shared = sharedCoordinates(draft);
   const candidates = draft.candidates.filter(c => c.name.trim());
   const rows = [
-    draft.title || 'Uncertain bird sighting',
+    shareSafeText(draft, draft.title || 'Uncertain bird sighting'),
     `Observed: ${localDateTime(draft.observedAt)} (${draft.timeSource})`,
-    `Place: ${draft.placeLabel}`,
+    `Place: ${shareSafeText(draft, draft.placeLabel)}`,
     `Shared location: ${shared ? `${shared.latitude}, ${shared.longitude}` : 'Coordinates withheld'} — ${precisionLabels[draft.precision]}`,
     `Sensitive location: ${draft.sensitive ? 'Yes — share with care' : 'Not marked sensitive'}`,
-    '', 'FIELD MARKS', draft.fieldMarks.length ? draft.fieldMarks.join(', ') : 'None recorded',
-    draft.fieldNotes || 'No additional field notes.', '', 'CANDIDATES',
-    ...candidates.map(c => `${c.name} — ${c.confidence} confidence${c.notes ? ` — ${c.notes}` : ''}`),
-    '', 'EVIDENCE FILES', ...draft.attachments.map(f => `${f.name} (${f.type || 'file'}, ${Math.ceil(f.size / 1000)} KB)`),
+    '', 'FIELD MARKS', draft.fieldMarks.length ? draft.fieldMarks.map(mark => shareSafeText(draft, mark)).join(', ') : 'None recorded',
+    shareSafeText(draft, draft.fieldNotes || 'No additional field notes.'), '', 'CANDIDATES',
+    ...candidates.map(c => `${shareSafeText(draft, c.name)} — ${c.confidence} confidence${c.notes ? ` — ${shareSafeText(draft, c.notes)}` : ''}`),
+    '', 'EVIDENCE FILES', ...draft.attachments.map(f => `${shareSafeText(draft, f.name)} (${f.type || 'file'}, ${Math.ceil(f.size / 1000)} KB)`),
     '', 'This proof card packages observation evidence for review. It is not an authoritative identification.'
   ].flatMap(row => row ? wrap(row) : ['']);
   const pages: string[][] = [];

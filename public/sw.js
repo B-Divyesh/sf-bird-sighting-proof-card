@@ -1,4 +1,4 @@
-const VERSION = 'proof-card-v4';
+const VERSION = 'proof-card-v5';
 const SHELL = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/assets/hero-field-map-768.avif', '/assets/hero-field-map-1280.avif', '/assets/hero-field-map-768.webp', '/assets/hero-field-map-1280.webp', '/privacy/', '/terms/'];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
