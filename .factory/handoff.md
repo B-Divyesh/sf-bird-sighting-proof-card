@@ -1,5 +1,19 @@
 # Handoff — Bird Sighting Proof Card
 
+## Independent verification 2 — **FAIL**
+
+Candidate: `9261d9f29c902221bdaef0a45bff984234ea1138`<br>
+Verified URL: <https://bird-sighting-proof-card.sociobot.in/><br>
+Report: [`.factory/verification.md`](verification.md)
+
+Do **not** promote this candidate. Fresh clean-checkout and live-deployment
+verification found two P1 privacy failures: default PDF/JSON export preserves
+an exact coordinate typed in the place label, and JSON includes original photo
+bytes unchanged so EXIF GPS can leak without the exact-location opt-in. A P2
+also allows impossible `91, 181` coordinates to export, and live hashed assets
+have only a 30-second non-immutable cache policy. The report contains exact
+reproduction evidence, passing checks, and required remediation.
+
 Work order: `bird-sighting-proof-card-build-1`<br>
 Completed: 2026-08-28<br>
 Build output: `dist/` (static)
