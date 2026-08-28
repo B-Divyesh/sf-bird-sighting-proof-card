@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Proof Card map feather</title>
+  <rect width="64" height="64" rx="14" fill="#f4f0e4"/>
+  <path d="M33 8c12 0 20 8 20 19 0 13-20 29-20 29S13 40 13 27C13 16 21 8 33 8Z" fill="#315c49"/>
+  <path d="M22 32c12-15 22-13 26-11-4 13-12 19-23 17m5-2 8-11m-12 7 8 1" fill="none" stroke="#f4f0e4" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="45" cy="20" r="3" fill="#d8763f"/>
+</svg>
