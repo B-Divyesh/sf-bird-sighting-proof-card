@@ -1,21 +1,16 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/assets/*",
-      "/privacy/*",
-      "/terms/*",
-      "/offline.html",
-      "/sw.js",
-      "/manifest.webmanifest",
-      "/icon*",
-      "/robots.txt",
-      "/sitemap.xml"
-    ]
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html",
+      "statusCode": 404
+    }
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "X-Frame-Options": "DENY",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(self), payment=(), usb=()",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
   },
   "routes": [
     {
@@ -32,6 +27,12 @@
     },
     {
       "route": "/manifest.webmanifest",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    },
+    {
+      "route": "/404.html",
       "headers": {
         "Cache-Control": "no-cache, must-revalidate"
       }

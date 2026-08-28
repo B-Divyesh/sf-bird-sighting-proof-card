@@ -1,9 +1,9 @@
 {
   "id": "/",
   "name": "Bird Sighting Proof Card",
-  "short_name": "Proof Card",
-  "description": "Build location-safe bird observation evidence packets offline.",
-  "start_url": "/?source=installed&v=1",
+  "short_name": "Bird Record",
+  "description": "Make a private bird-sighting record with safe location choices.",
+  "start_url": "/?source=installed&v=2",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f4f0e4",

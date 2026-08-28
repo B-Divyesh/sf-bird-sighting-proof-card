@@ -24,10 +24,19 @@ const latitude = '[+-]?(?:[0-8]?\\d(?:\\.\\d+)?|90(?:\\.0+)?)';
 const longitude = '[+-]?(?:(?:1[0-7]\\d|[1-9]?\\d)(?:\\.\\d+)?|180(?:\\.0+)?)';
 const coordinateSeparator = '(?:\\s*(?:,|;|/)\\s*|\\s+)';
 const coordinatePair = new RegExp(`(^|[^\\w.])(?:(?:${latitude})\\s*(?:°\\s*)?(?:[NS]\\s*)?${coordinateSeparator}(?:${longitude})\\s*(?:°\\s*)?(?:[EW])?|(?:${longitude})\\s*(?:°\\s*)?(?:[EW]\\s*)?${coordinateSeparator}(?:${latitude})\\s*(?:°\\s*)?(?:[NS])?)(?!(?:[A-Za-z0-9_]|\\.\\d))`, 'gi');
+const degree = '\\d{1,3}\\s*(?:°|deg)\\s*';
+const minute = '[0-5]?\\d(?:\\.\\d+)?\\s*(?:[′\'’]|min)\\s*';
+const second = '[0-5]?\\d(?:\\.\\d+)?\\s*(?:[″"”]|sec)\\s*';
+const dmsValue = `${degree}${minute}(?:${second})?`;
+const hemispherePair = new RegExp(`(^|[^\\w])(?:${dmsValue}[NS]\\s*[,;/]?\\s*${dmsValue}[EW]|${dmsValue}[EW]\\s*[,;/]?\\s*${dmsValue}[NS])`, 'gi');
+const compactGpsPair = new RegExp(`(^|[^\\w])(?:[NS]\\s*${dmsValue}\\s*[,;/]?\\s*[EW]\\s*${dmsValue}|[EW]\\s*${dmsValue}\\s*[,;/]?\\s*[NS]\\s*${dmsValue})`, 'gi');
+const labelledPair = new RegExp(`(^|[^\\w])(?:lat(?:itude)?|GPSLatitude)\\s*[:=]\\s*${latitude}\\s*[,; ]+\\s*(?:lon(?:gitude)?|lng|GPSLongitude)\\s*[:=]\\s*${longitude}`, 'gi');
 
 export function shareSafeText(draft: Pick<SightingDraft, 'precision' | 'exactAcknowledged'>, value: string) {
   if (allowsExactLocation(draft)) return value;
-  return value.replace(coordinatePair, (_match, prefix: string) => `${prefix}[coordinates withheld]`);
+  return [hemispherePair, compactGpsPair, labelledPair, coordinatePair].reduce(
+    (safe, pattern) => safe.replace(pattern, (_match, prefix: string) => `${prefix}[coordinates withheld]`), value
+  );
 }
 
 export function sharedCoordinates(draft: Pick<SightingDraft, 'latitude' | 'longitude' | 'precision' | 'exactAcknowledged'>) {
@@ -49,7 +58,7 @@ export function sharedCoordinates(draft: Pick<SightingDraft, 'latitude' | 'longi
 export function exportIssues(draft: SightingDraft): string[] {
   const issues: string[] = [];
   if (!draft.observedAt) issues.push('Add the observation date and time.');
-  if (!draft.placeLabel.trim()) issues.push('Add a share-safe place or region name.');
+  if (!draft.placeLabel.trim()) issues.push('Add a broad place or region name.');
   if (!draft.attachments.length) issues.push('Attach at least one photo or audio recording.');
   if (!draft.candidates.some(candidate => candidate.name.trim())) issues.push('Add at least one candidate, even “Unknown bird”.');
   const hasLatitude = draft.latitude !== null;

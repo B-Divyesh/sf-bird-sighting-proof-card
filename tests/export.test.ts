@@ -42,6 +42,27 @@ describe('share-safe exports', () => {
     expect(packet.card.attachments[0].size).toBe(4);
   });
 
+  it('removes JPEG comments and WAV INFO comments from decoded exports', async () => {
+    const draft = proofDraft();
+    const secret = Buffer.from('GPSLatitude=58.951234;GPSLongitude=-2.751234');
+    const length = secret.length + 2;
+    const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xfe, length >> 8, length & 0xff, ...secret, 0xff, 0xd9]);
+    const wavHeader = Buffer.from('524946460000000057415645666d74201000000001000100401f0000803e000002001000', 'hex');
+    const list = Buffer.concat([Buffer.from('LIST'), Buffer.alloc(4), Buffer.from('INFOICMT'), Buffer.alloc(4), secret]);
+    list.writeUInt32LE(list.length - 8, 4);
+    const wav = Buffer.concat([wavHeader, list]);
+    wav.writeUInt32LE(wav.length - 8, 4);
+    draft.attachments = [
+      { id: 'jpeg', name: 'photo.jpg', type: 'image/jpeg', size: jpeg.length, lastModified: 0, blob: new Blob([jpeg], { type: 'image/jpeg' }) },
+      { id: 'wav', name: 'call.wav', type: 'audio/wav', size: wav.length, lastModified: 0, blob: new Blob([wav], { type: 'audio/wav' }) }
+    ];
+    const packet = JSON.parse(await (await jsonBlob(draft)).text());
+    for (const attachment of packet.card.attachments) {
+      const decoded = Buffer.from(attachment.data.split(',')[1], 'base64');
+      expect(decoded.includes(secret)).toBe(false);
+    }
+  });
+
   it('keeps coordinate prose only after the exact-location acknowledgement', async () => {
     const draft = proofDraft();
     draft.precision = 'exact';

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "demo-isolation",
+    "claim": "The sample demo uses separate storage, resets independently, and never replaces real records.",
+    "where": "demo banner, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:demo-isolation",
+    "sandbox": "fresh browser context; save a real record; enter ?demo=1; edit and reset; leave demo; verify the real record returns"
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit.",
+    "where": "landing facts, README",
+    "test": "npm run test:e2e -- --grep @claim:offline-reload",
+    "sandbox": "fresh browser context at /demo/; wait for service worker; set context offline; reload; assert filled sample"
+  },
+  {
+    "id": "local-only-network",
+    "claim": "Records and evidence stay on the device until the user exports a file.",
+    "where": "landing facts, storage dialog, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:local-only-network",
+    "sandbox": "capture every request during demo save and export; assert same-origin GET requests only"
+  },
+  {
+    "id": "safe-default-export",
+    "claim": "Default previews and exports redact common coordinate text and remove known location metadata containers.",
+    "where": "evidence step, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:safe-default-export",
+    "sandbox": "demo data plus DMS, labelled coordinates, JPEG COM, WAV INFO, and MP3 ID3 fixtures; decode exported attachments"
+  },
+  {
+    "id": "photo-time-prefill",
+    "claim": "A JPEG capture time can fill the observation time and remains editable.",
+    "where": "time step, README",
+    "test": "npm run test:e2e -- --grep @claim:photo-time-prefill",
+    "sandbox": "attach a JPEG with DateTimeOriginal in /demo/; assert prefill; edit and assert correction"
+  },
+  {
+    "id": "geolocation-on-click",
+    "claim": "Location permission is requested only after the named button is pressed.",
+    "where": "place step, privacy page",
+    "test": "npm run test:e2e -- --grep @claim:geolocation-on-click",
+    "sandbox": "instrument geolocation in /demo/; assert zero calls before the action and one call after it"
+  },
+  {
+    "id": "portable-exports",
+    "claim": "Downloads a PDF and exports an importable JSON backup with up to 12 MB of evidence.",
+    "where": "export controls, evidence limit, README",
+    "test": "npm run test:e2e -- --grep @claim:portable-exports",
+    "sandbox": "filled /demo/ record; validate PDF header; export and re-import a record at the 12 MB evidence boundary"
+  },
+  {
+    "id": "no-identification-or-publishing",
+    "claim": "The tool does not identify a species or publish a sighting.",
+    "where": "landing limits, preview, terms, README",
+    "test": "npm run test:e2e -- --grep @claim:no-identification-or-publishing",
+    "sandbox": "filled /demo/ record; assert unverified notice and absence of identification or publishing actions"
+  },
+  {
+    "id": "free-no-account",
+    "claim": "The tool is free and needs no account.",
+    "where": "landing facts, README",
+    "test": "npm run test:e2e -- --grep @claim:free-no-account",
+    "sandbox": "fresh /demo/; assert free fact, no sign-in link, password input, payment element, or purchase action"
+  },
+  {
+    "id": "original-art-provenance",
+    "claim": "The field illustration is original and was created with AI assistance.",
+    "where": "landing footer, design record",
+    "test": "npm run test:e2e -- --grep @claim:original-art-provenance",
+    "sandbox": "fresh /demo/ plus repository provenance files; match the shipped hero to the recorded source and prompt metadata"
+  }
+]

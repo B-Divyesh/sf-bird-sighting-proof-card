@@ -28,13 +28,28 @@ describe('location privacy', () => {
     expect(shareSafeText(draft, 'Nest at 58.951234, -2.751234.')).toBe('Nest at [coordinates withheld].');
     expect(shareSafeText(draft, 'Coordinates -2.751234, 58.951234.')).toBe('Coordinates [coordinates withheld].');
   });
+
+  it('redacts DMS, degree-minute, compact, and labelled GPS notation', () => {
+    const draft = { precision: 'region' as const, exactAcknowledged: false };
+    const fixtures = [
+      `Nest at 58°57'04.4"N 2°45'04.4"W`,
+      `Nest at 58°57.073'N 2°45.073'W`,
+      `Fix N 58°57'04.4" W 2°45'04.4"`,
+      'lat=58.951234; lon=-2.751234',
+      'GPSLatitude=58.951234; GPSLongitude=-2.751234'
+    ];
+    fixtures.forEach(value => {
+      expect(shareSafeText(draft, value)).toContain('[coordinates withheld]');
+      expect(shareSafeText(draft, value)).not.toMatch(/58°|58\.951234/);
+    });
+  });
 });
 
 describe('export readiness', () => {
   it('names every missing proof element', () => {
     expect(exportIssues(newDraft())).toEqual([
       'Add the observation date and time.',
-      'Add a share-safe place or region name.',
+      'Add a broad place or region name.',
       'Attach at least one photo or audio recording.',
       'Add at least one candidate, even “Unknown bird”.'
     ]);

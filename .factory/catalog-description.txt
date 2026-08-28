@@ -1,0 +1,1 @@
+Make a private bird-sighting record with local evidence, safe locations, and PDF or JSON export.

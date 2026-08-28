@@ -1,11 +1,11 @@
-const VERSION = 'proof-card-v5';
-const SHELL = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/assets/hero-field-map-768.avif', '/assets/hero-field-map-1280.avif', '/assets/hero-field-map-768.webp', '/assets/hero-field-map-1280.webp', '/privacy/', '/terms/'];
+const VERSION = 'bird-record-v6';
+const SHELL = ['/', '/index.html', '/demo/', '/404.html', '/offline.html', '/offline.css', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/assets/social-card.jpg', '/assets/hero-field-map-768.avif', '/assets/hero-field-map-1280.avif', '/assets/hero-field-map-768.webp', '/assets/hero-field-map-1280.webp', '/privacy/', '/terms/'];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(VERSION);
     await cache.addAll(SHELL);
     const builtAssets = new Set();
-    for (const path of ['/index.html', '/privacy/', '/terms/']) {
+    for (const path of ['/index.html', '/demo/', '/privacy/', '/terms/', '/404.html']) {
       const response = await fetch(path);
       const html = await response.clone().text();
       for (const match of html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)) builtAssets.add(match[1]);

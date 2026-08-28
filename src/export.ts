@@ -1,6 +1,7 @@
 import type { SightingDraft } from './types';
 import { metadataSafeBlob } from './media';
 import { localDateTime, precisionLabels, shareSafeText, sharedCoordinates } from './privacy';
+import { attachmentBudgetIssue, MAX_IMPORT_BYTES } from './limits';
 
 const blobToDataUrl = async (blob: Blob) => {
   const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -10,6 +11,8 @@ const blobToDataUrl = async (blob: Blob) => {
 };
 
 export async function jsonBlob(draft: SightingDraft) {
+  const budgetIssue = attachmentBudgetIssue(draft.attachments.map(file => file.size));
+  if (budgetIssue) throw new Error(budgetIssue);
   const location = sharedCoordinates(draft);
   const attachments = await Promise.all(draft.attachments.map(async file => {
     const safeBlob = await metadataSafeBlob(file.blob);
@@ -26,7 +29,7 @@ export async function jsonBlob(draft: SightingDraft) {
       location, locationPrecision: precisionLabels[draft.precision], sensitive: draft.sensitive,
       fieldMarks: draft.fieldMarks.map(mark => shareSafeText(draft, mark)), fieldNotes: shareSafeText(draft, draft.fieldNotes),
       candidates: draft.candidates.filter(c => c.name.trim()).map(({ name, confidence, notes }) => ({ name: shareSafeText(draft, name), confidence, notes: shareSafeText(draft, notes) })),
-      notice: 'Evidence packet for review; not an authoritative identification.', attachments
+      notice: 'Bird-sighting record for review; not an authoritative identification.', attachments
     }
   }, null, 2)], { type: 'application/json' });
 }
@@ -53,7 +56,7 @@ export function pdfBlob(draft: SightingDraft) {
     shareSafeText(draft, draft.fieldNotes || 'No additional field notes.'), '', 'CANDIDATES',
     ...candidates.map(c => `${shareSafeText(draft, c.name)} — ${c.confidence} confidence${c.notes ? ` — ${shareSafeText(draft, c.notes)}` : ''}`),
     '', 'EVIDENCE FILES', ...draft.attachments.map(f => `${shareSafeText(draft, f.name)} (${f.type || 'file'}, ${Math.ceil(f.size / 1000)} KB)`),
-    '', 'This proof card packages observation evidence for review. It is not an authoritative identification.'
+    '', 'This bird-sighting record supports review. It is not an authoritative identification.'
   ].flatMap(row => row ? wrap(row) : ['']);
   const pages: string[][] = [];
   for (let i = 0; i < rows.length; i += 42) pages.push(rows.slice(i, i + 42));
@@ -78,6 +81,7 @@ export function pdfBlob(draft: SightingDraft) {
 }
 
 export async function importedDraft(file: File): Promise<SightingDraft> {
+  if (file.size > MAX_IMPORT_BYTES) throw new Error('That import is over the 20 MB safety limit.');
   const parsed = JSON.parse(await file.text());
   if (parsed?.format !== 'bird-sighting-proof-card' || parsed?.version !== 1 || !parsed.card) throw new Error('This is not a Proof Card v1 JSON export.');
   const card = parsed.card;
@@ -86,6 +90,8 @@ export async function importedDraft(file: File): Promise<SightingDraft> {
     const response = await fetch(item.data); const blob = await response.blob();
     return { id: crypto.randomUUID(), name: item.name, type: item.type, size: blob.size, lastModified: Date.now(), capturedAt: item.capturedAt, blob };
   }));
+  const budgetIssue = attachmentBudgetIssue(attachments.map(item => item.size));
+  if (budgetIssue) throw new Error(budgetIssue);
   const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(), title: card.title || '', observedAt: card.observedAt || '', timeSource: card.timeSource || 'entered',

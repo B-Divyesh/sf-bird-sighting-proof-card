@@ -1,0 +1,12 @@
+.file-drop:has(+ #evidence-files:focus-visible),
+.import-button:has(+ #import-file:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 560px) {
+  .brand,
+  footer nav a {
+    min-height: 44px;
+  }
+}

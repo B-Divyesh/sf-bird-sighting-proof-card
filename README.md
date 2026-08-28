@@ -1,33 +1,44 @@
 # Bird Sighting Proof Card
 
-An offline, local-first evidence packet builder for birders who are unsure what they observed. It brings photos, recordings, observation time, deliberately generalized location, field marks, and candidate confidence into one reviewable card without sending evidence to a server.
+Make a private bird-sighting record with photos, sound, field marks, and honest confidence. Choose how much location an export reveals.
+
+It is for birders who want another person to review an uncertain sighting. It does not identify or publish birds.
 
 Live product: [bird-sighting-proof-card.sociobot.in](https://bird-sighting-proof-card.sociobot.in)
 
-## What it does
+One-click sample: [bird-sighting-proof-card.sociobot.in/demo/](https://bird-sighting-proof-card.sociobot.in/demo/)
 
-- Keeps drafts, coordinates, photos, and audio in browser IndexedDB.
-- Accepts up to 10 JPEG, PNG, WebP, M4A, MP3, or WAV files (25 MB each).
-- Reads `DateTimeOriginal` from ordinary JPEG EXIF metadata when present and otherwise suggests the file date.
-- Withholds coordinates by default. Optional 10 km, 1 km, and 100 m settings snap to geographic grids; exact coordinates require a separate acknowledgement.
-- Records field marks, free-form notes, multiple candidate species, and a low/medium/high confidence for each.
-- Produces a compact PDF review sheet or a portable JSON backup. Exported JPEG, PNG, and WebP evidence has EXIF/XMP/text metadata removed; audio remains original.
-- Imports its own v1 JSON format and works after the first visit without a network connection.
+## Make and keep a bird record
 
-It does not identify birds, publish sightings, submit to eBird, or make an observation authoritative.
+- Add JPEG, PNG, WebP, MP3, or WAV evidence. A record can hold ten files and 12 MB total.
+- Read a JPEG capture time when available. You can correct the suggested time.
+- Keep coordinates hidden by default. Rounded choices share an area instead.
+- Add field marks, notes, possible species, and confidence.
+- Download a PDF review sheet or an importable JSON backup.
+- Remove known location metadata containers from supported JSON evidence copies.
 
-## Run locally
+The free tool needs no account. Records use private browser storage and are never uploaded.
 
-Requires Node.js 20 or newer.
+## Try the isolated sample
+
+Open `/demo/` or `/?demo=1`. The filled sample includes a photo, sound, place, notes, and two possible species.
+
+The demo uses the separate `demo:bird-proof-card` browser database. Resetting or leaving it deletes only demo records.
+
+See [`.factory/demo.md`](.factory/demo.md) for the exact sample and reset behavior.
+
+## Run the product locally
+
+Use Node.js 20 or newer.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Then open the URL printed by Vite. No API keys or backend are required.
+Open the local address printed by Vite. No API key or backend is needed.
 
-## Test and build
+## Verify every product claim
 
 ```sh
 npm test
@@ -35,27 +46,31 @@ npm run build
 npm run test:e2e
 ```
 
-`npm run build` is the production build command. It writes the static site to `dist/`, with `dist/index.html` at the root. End-to-end tests use Playwright 1.58.2 and cover desktop, a 390 px-class mobile layout, export safety, IndexedDB persistence, axe accessibility checks in both color schemes, and a real offline reload.
+The claim registry is [`.factory/claims.json`](.factory/claims.json). Each listed command runs one browser test against the isolated demo.
 
-To inspect the production build:
+The production build writes the static product to `dist/`. JavaScript, accessibility, mobile layout, privacy, exports, and offline reload have automated checks.
 
-```sh
-npm run preview
-```
+## Understand privacy and data ownership
 
-## Privacy and data ownership
+The app has no analytics, advertising, third-party scripts, or remote data store. Runtime requests stay on the product’s origin.
 
-There is no account, analytics, tracking, third-party runtime script, or CDN font. Data leaves the device only through a file the user explicitly exports. Default exports redact coordinate-looking text; exact coordinates require the explicit exact-location acknowledgement. Exported JPEG, PNG, and WebP files have location-capable metadata containers removed, while audio stays original and should be handled like the source file. See `/privacy/` and `/terms/` in the built site.
+Default exports redact common coordinate formats in names and notes. Exact coordinates need a separate acknowledgement.
 
-Clearing browser site data or uninstalling the PWA can remove local drafts. Export JSON for a portable backup.
+JSON copies remove known metadata containers from supported files. Always inspect an export for visual or uncommon location clues before sharing.
 
-## Deployment
+Deleting browser site data also deletes records without an exported backup. Use JSON export when you need a portable copy.
 
-Deploy the contents of `dist/` as a static site with clean-directory routes enabled for `/privacy/` and `/terms/`. The shipped `staticwebapp.config.json` configures Azure Static Web Apps to revalidate `sw.js` and the manifest while caching hashed files under `assets/` for one year as immutable.
+Read the shipped [privacy](https://bird-sighting-proof-card.sociobot.in/privacy/) and [terms](https://bird-sighting-proof-card.sociobot.in/terms/) pages.
 
-## Design and provenance
+## Deploy the static build
 
-The topographic-cartography visual system and original illustration prompt/provenance are documented in [`.factory/design.md`](.factory/design.md). The source illustration is kept under `assets/src/`; optimized AVIF and WebP renditions ship in the PWA.
+Deploy the contents of `dist/`. The supplied Azure Static Web Apps config sets route, cache, content, framing, and permission policies.
+
+The service worker caches the main routes and sample. It reloads the filled demo after the first online visit.
+
+## Visual design and asset provenance
+
+The cartographic field-notebook system is documented in [`.factory/design.md`](.factory/design.md). The source illustration and generation details live under `assets/src/`.
 
 ## License
 

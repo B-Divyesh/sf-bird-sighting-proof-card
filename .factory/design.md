@@ -68,6 +68,10 @@ Avoid: text, letters, numbers, labels, logos, watermarks, brands, people, binocu
 
 Generated with the factory Azure image deployment on 2026-08-28. The selected output is original for this product. The exact prompt and generation metadata are retained beside the source in `assets/src/hero-field-map.json`. The footer discloses AI-assisted imagery.
 
+The 1200 × 630 social preview in `public/assets/social-card.jpg` is a center crop of that original hero. The 180 px Apple touch icon is resized from the hand-authored product icon. No new stock or third-party asset was introduced during polish round 1.
+
+Polish round 1 keeps the same cartographic field-notebook identity. The plain first-screen wording, demo banner, legal routes, and 404 use the same paper, pine, contour, serif, and survey-amber grammar.
+
 ## Responsive intent
 
 - At 390px the utility rail becomes a compact status row, the two-column builder becomes a single recording route, and the preview moves after the fields. Nothing relies on hover.
