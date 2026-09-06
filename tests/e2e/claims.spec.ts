@@ -146,7 +146,10 @@ test('@claim:safe-default-export redacts location text and attachment metadata',
   await page.locator('#latitude').fill('58.951234');
   await page.locator('#longitude').fill('-2.751234');
   await page.getByLabel(/About 1 km/).check();
-  await expect(page.locator('#preview-content')).not.toContainText('58.951234');
+  await expect(page.locator('#preview-content')).toContainText('58.9472, -2.7519');
+  const roundedPacket = JSON.parse(await downloadText(page, 'Export JSON + media'));
+  expect(roundedPacket.card.location).toMatchObject({ latitude: 58.9472, longitude: -2.7519, precision: 'About 1 km — locality' });
+  expect(JSON.stringify(roundedPacket.card.location)).not.toContain('58.951234');
   await page.getByLabel(/Exact coordinates/).check();
   await page.getByRole('button', { name: 'Download PDF' }).click();
   await expect(page.locator('#error-summary')).toContainText('Acknowledge the exact-location warning');
@@ -186,7 +189,10 @@ test('@claim:portable-exports downloads PDF and round-trips the 12 MB JSON bound
   const pdf = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download PDF' }).click();
   const pdfPath = await (await pdf).path();
-  expect((await readFile(pdfPath!)).subarray(0, 8).toString()).toBe('%PDF-1.4');
+  const pdfContents = await readFile(pdfPath!);
+  expect(pdfContents.subarray(0, 8).toString()).toBe('%PDF-1.4');
+  expect(pdfContents.toString()).toContain('dawn-marsh-observation.webp');
+  expect(pdfContents.toString()).toContain('shore-call-note.wav');
   await removeAllEvidence(page);
   await page.locator('#evidence-files').setInputFiles({ name: 'boundary.mp3', mimeType: 'audio/mpeg', buffer: Buffer.alloc(12_000_000, 7) });
   const pending = page.waitForEvent('download');
@@ -202,6 +208,19 @@ test('@claim:portable-exports downloads PDF and round-trips the 12 MB JSON bound
   await expect(page.locator('.evidence-item')).toHaveCount(10);
   await page.locator('#evidence-files').setInputFiles({ name: 'eleventh.mp3', mimeType: 'audio/mpeg', buffer: Buffer.from([11]) });
   await expect(page.locator('#file-error')).toContainText('up to 10');
+});
+
+test('@claim:site-data-removal clears an unexported record with browser site data', async ({ page, context }) => {
+  await page.goto('/demo/');
+  await page.locator('#card-title').fill('Record without a backup');
+  await page.getByRole('button', { name: 'Save on this device' }).click();
+  await expect(page.locator('#save-status')).toContainText('Saved locally');
+  const origin = new URL(page.url()).origin;
+  const session = await context.newCDPSession(page);
+  await session.send('Storage.clearDataForOrigin', { origin, storageTypes: 'all' });
+  await page.reload();
+  await expect(page.locator('#card-title')).toHaveValue('Distant wader at Deerness');
+  await expect(page.locator('body')).not.toContainText('Record without a backup');
 });
 
 test('@claim:no-identification-or-publishing labels the record as unverified and offers no publishing action', async ({ page }) => {

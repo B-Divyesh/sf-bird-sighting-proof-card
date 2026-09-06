@@ -1,6 +1,6 @@
 # Copy audit
 
-Date: 2026-08-28
+Date: 2026-09-06
 
 Polish 2 changed the evidence hint to “Backup exports remove known location
 details from supported files.” (10 words) and renamed the storage action
@@ -10,6 +10,10 @@ titles, not visitor-facing marketing copy.
 The first screen says what the tool makes, who uses it, and what the sample action opens. The headline has five words. The supporting sentence has 14 words.
 
 No landing or README sentence exceeds 22 words. No sentence uses the banned marketing words.
+
+Repair 2 adds a visible malformed-import recovery message. Its two sentences
+have 7 and 11 words. The 404 route now uses the state labels “Error 404” and
+“Page not found”; it has no metaphorical heading.
 
 ## Landing page sentences
 
@@ -62,6 +66,8 @@ No landing or README sentence exceeds 22 words. No sentence uses the banned mark
 | 4 | PDF lists evidence names. |
 | 7 | JSON includes sanitized copies of supported files. |
 | 5 | An app update is ready. |
+| 7 | This JSON file could not be read. |
+| 11 | Choose a Bird Sighting Proof Card JSON export and try again. |
 | 7 | Make a reviewable record without publishing it. |
 | 7 | Original field illustration created with AI assistance. |
 

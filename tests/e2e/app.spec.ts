@@ -141,8 +141,18 @@ test('serves distinct routes with complete metadata and working history', async 
   await expect(page).toHaveURL(/\/$/);
   await page.goto('/404.html');
   await expect(page).toHaveTitle('Page not found — Bird Sighting Proof Card');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This trail ends off the map');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
   await expect(page.getByRole('link', { name: 'Return to the builder' })).toHaveAttribute('href', '/#builder');
+});
+
+test('shows a visible plain recovery message for malformed JSON imports', async ({ page }) => {
+  await page.goto('/demo/');
+  await page.locator('#import-file').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{bad') });
+  const message = 'This JSON file could not be read. Choose a Bird Sighting Proof Card JSON export and try again.';
+  await expect(page.locator('#import-error')).toBeVisible();
+  await expect(page.locator('#import-error')).toHaveText(message);
+  await expect(page.locator('#live-status')).toHaveText(message);
+  await expect(page.locator('#import-error')).not.toContainText(/Expected property name|JSON at position/);
 });
 
 test('moves focus and announces every document route', async ({ page }) => {

@@ -47,7 +47,7 @@ app.innerHTML = `
       </form>
       <aside class="proof-sheet" aria-labelledby="preview-title"><div class="sheet-top"><div><p class="overline">Safe to share preview</p><h2 id="preview-title">Uncertain bird sighting</h2></div><span class="sheet-stamp">UNVERIFIED</span></div><div id="preview-content"></div><div class="export-actions"><button class="button primary" type="button" id="export-pdf">Download PDF</button><button class="button secondary" type="button" id="export-json">Export JSON + media</button></div><p class="export-note">Check the visible place before sharing. JSON includes sanitized copies of your evidence files.</p></aside>
     </div>
-    <section class="drafts" id="drafts" aria-labelledby="drafts-title"><div class="section-heading"><div><p class="eyebrow">Saved records</p><h2 id="drafts-title">Records on this device</h2></div><label class="button secondary import-button" for="import-file">Import JSON</label><input class="visually-hidden" id="import-file" type="file" accept="application/json,.json"></div><div id="draft-list"></div></section>
+    <section class="drafts" id="drafts" aria-labelledby="drafts-title"><div class="section-heading"><div><p class="eyebrow">Saved records</p><h2 id="drafts-title">Records on this device</h2></div><label class="button secondary import-button" for="import-file">Import JSON</label><input class="visually-hidden" id="import-file" type="file" accept="application/json,.json" aria-describedby="import-error"></div><div id="import-error" class="field-error import-error" role="alert" hidden></div><div id="draft-list"></div></section>
     <section class="explain" aria-labelledby="how-title"><p class="eyebrow">How it works</p><h2 id="how-title">Make evidence easier to review</h2><ol><li><strong>Add evidence.</strong> Attach a photo or recording and check the time.</li><li><strong>Choose what to share.</strong> Keep coordinates hidden or choose a rounded area.</li><li><strong>Export the record.</strong> Download a PDF to review or JSON to keep.</li></ol><h2>What this record never does</h2><p>It does not identify a bird, publish a sighting, or prove a species.</p></section>
     <dialog id="storage-dialog"><form method="dialog"><button class="dialog-close" aria-label="Close storage explanation">×</button><p class="eyebrow">Stored on this device</p><h2>Nothing is uploaded.</h2><p>Records and evidence stay in this browser. Export JSON if you need a backup.</p><p>PDF lists evidence names. JSON includes sanitized copies of supported files.</p><button class="button primary" value="close">Close storage details</button></form></dialog>
     <div class="toast" id="update-toast" role="status" hidden><span>An app update is ready.</span><button class="button secondary" id="reload-app">Reload the updated app</button></div>
@@ -270,8 +270,18 @@ byId('export-json').addEventListener('click', async () => { if (showExportIssues
 
 input('import-file').addEventListener('change', async event => {
   const file = (event.target as HTMLInputElement).files?.[0]; if (!file) return;
+  const importError = byId('import-error');
+  importError.hidden = true;
+  importError.textContent = '';
   try { if (file.size > MAX_IMPORT_BYTES) throw new Error('That import is over the 20 MB safety limit.'); draft = await importedDraft(file); await saveDraft(draft); drafts = await getDrafts(); populateForm(); renderDrafts(); document.querySelector('#builder')?.scrollIntoView(); announce('Bird record JSON imported as a new saved record.'); }
-  catch (error) { announce(error instanceof Error ? error.message : 'The JSON file could not be imported.'); }
+  catch (error) {
+    const message = error instanceof SyntaxError
+      ? 'This JSON file could not be read. Choose a Bird Sighting Proof Card JSON export and try again.'
+      : error instanceof Error ? error.message : 'The JSON file could not be imported. Choose a Bird Sighting Proof Card JSON export and try again.';
+    importError.textContent = message;
+    importError.hidden = false;
+    announce(message);
+  }
   input('import-file').value = '';
 });
 

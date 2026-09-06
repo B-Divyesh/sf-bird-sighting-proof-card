@@ -1,8 +1,8 @@
 [
   {
     "id": "demo-isolation",
-    "claim": "The sample demo uses separate storage, resets independently, and never replaces real records.",
-    "where": "demo banner, privacy page, README",
+    "claim": "The sample demo uses separate storage, resets independently, never replaces real records, and can save an incomplete record.",
+    "where": "demo banner, record builder, privacy page, README",
     "test": "npm run test:e2e -- --grep @claim:demo-isolation",
     "sandbox": "fresh browser context; save a real record; enter ?demo=1; edit and reset; leave demo; verify the real record returns"
   },
@@ -22,10 +22,10 @@
   },
   {
     "id": "safe-default-export",
-    "claim": "Default previews and exports redact common coordinate text and remove known location metadata containers.",
+    "claim": "Default previews and exports redact common coordinate text, remove known location metadata containers, and round shared coordinates to the chosen precision.",
     "where": "evidence step, privacy page, README",
     "test": "npm run test:e2e -- --grep @claim:safe-default-export",
-    "sandbox": "demo data plus DMS, labelled coordinates, JPEG COM, WAV INFO, and MP3 ID3 fixtures; decode exported attachments"
+    "sandbox": "demo data plus DMS, labelled coordinates, JPEG COM, WAV INFO, and MP3 ID3 fixtures; decode exported attachments; select about 1 km and assert the preview and JSON use rounded coordinates"
   },
   {
     "id": "photo-time-prefill",
@@ -43,10 +43,10 @@
   },
   {
     "id": "portable-exports",
-    "claim": "Downloads a PDF and exports an importable JSON backup with up to 12 MB of evidence.",
+    "claim": "Downloads a PDF that lists evidence names and exports an importable JSON backup with up to ten files and 12 MB of evidence.",
     "where": "export controls, evidence limit, README",
     "test": "npm run test:e2e -- --grep @claim:portable-exports",
-    "sandbox": "filled /demo/ record; validate PDF header; export and re-import a record at the 12 MB evidence boundary"
+    "sandbox": "filled /demo/ record; validate PDF header and sample evidence names; export and re-import a record at the 12 MB evidence boundary; accept ten files and reject an eleventh"
   },
   {
     "id": "no-identification-or-publishing",
@@ -82,5 +82,12 @@
     "where": "in-app update toast",
     "test": "npm run test:e2e -- --grep @claim:app-update",
     "sandbox": "replace the service-worker response with a fixture; assert the update toast, reload it, and confirm the replacement worker controls the reloaded page"
+  },
+  {
+    "id": "site-data-removal",
+    "claim": "Deleting browser site data deletes records that were not exported.",
+    "where": "privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:site-data-removal",
+    "sandbox": "fresh /demo/ context; save a named record without export; clear the origin's browser storage; reload and assert the named record is absent while only the shipped sample is reseeded"
   }
 ]
