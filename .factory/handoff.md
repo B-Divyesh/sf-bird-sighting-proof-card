@@ -5,6 +5,7 @@ Live URL: <https://bird-sighting-proof-card.sociobot.in/>
 
 Implementation SHA: `164b4e80f3b8f28d213d529e1907614e4187c239`
 Previous report/documentation SHA: `4ed31c774f9e4ed199fb55228d559985488a2c06`
+Documentation handoff SHA: `1ed4ece723ea6921744952d9437e33974d877d2f` (documentation only)
 
 ## Result
 
