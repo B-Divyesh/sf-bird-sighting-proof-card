@@ -1,5 +1,23 @@
 # Repair 2 handoff — Make a private bird-sighting record
 
+## Verification 4 update
+
+Independent verification on 2026-09-06 is **PASS** with zero findings and zero
+untested claims. The reviewed implementation is
+`164b4e80f3b8f28d213d529e1907614e4187c239`; documentation revision
+`4c7b22165b98e676edc8349b814623523d7cd365` only clarifies the existing
+exact-location claim. A clean detached checkout passed unit, type, lint,
+build, 50 browser tests, and all 13 declared claim commands. The live runtime
+matches that candidate byte for byte for the app shell, service worker,
+manifest, JavaScript, and CSS.
+
+Live desktop and phone checks passed the filled isolated demo, reset/exit
+isolation, PDF/JSON output, invalid and malformed-input recovery, offline
+reload, intended 404, links, legal pages, keyboard focus, reduced motion,
+privacy headers, and accessibility. Axe had zero violations across six routes,
+two themes, and two viewports. See `.factory/verification-4.md` for the full
+evidence and exact commands. No known gaps remain.
+
 Work order: `bird-sighting-proof-card-repair-2`
 Live URL: <https://bird-sighting-proof-card.sociobot.in/>
 
