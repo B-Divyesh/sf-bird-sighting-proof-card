@@ -19,8 +19,9 @@ The first action is **Try it with sample data**, which opens a filled record.
 ## What changed
 
 - Completed the claims ledger. `safe-default-export` now proves a selected
-  rounded coordinate in both the preview and JSON. `portable-exports` now
-  proves populated PDF evidence names and the ten-file limit.
+  rounded coordinate in both the preview and JSON, plus acknowledgement before
+  exact-coordinate export. `portable-exports` now proves populated PDF
+  evidence names and the ten-file limit.
 - Expanded `demo-isolation` to cover saving an incomplete record. Added the
   `site-data-removal` claim, which saves an unexported demo record, clears the
   origin's browser storage, reloads, and proves the record is gone.

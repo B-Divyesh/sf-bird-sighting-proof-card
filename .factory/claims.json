@@ -22,10 +22,10 @@
   },
   {
     "id": "safe-default-export",
-    "claim": "Default previews and exports redact common coordinate text, remove known location metadata containers, and round shared coordinates to the chosen precision.",
+    "claim": "Default previews and exports redact common coordinate text, remove known location metadata containers, round shared coordinates to the chosen precision, and require acknowledgement before exact coordinates export.",
     "where": "evidence step, privacy page, README",
     "test": "npm run test:e2e -- --grep @claim:safe-default-export",
-    "sandbox": "demo data plus DMS, labelled coordinates, JPEG COM, WAV INFO, and MP3 ID3 fixtures; decode exported attachments; select about 1 km and assert the preview and JSON use rounded coordinates"
+    "sandbox": "demo data plus DMS, labelled coordinates, JPEG COM, WAV INFO, and MP3 ID3 fixtures; decode exported attachments; select about 1 km and assert the preview and JSON use rounded coordinates; choose Exact and assert export is blocked until acknowledgement"
   },
   {
     "id": "photo-time-prefill",
