@@ -1,4 +1,33 @@
-# Repair 2 handoff — Make a private bird-sighting record
+# Review 5 handoff — Make a private bird-sighting record
+
+## Review 5 update
+
+Strict review 5 on 2026-09-06 is **PASS** with zero findings and zero untested
+public claims. The implementation reviewed is
+`164b4e80f3b8f28d213d529e1907614e4187c239`; the starting documentation SHA is
+`c872d4de6ff6d35a4bc2a23aa28bd2538641db86`. Later commits after the
+implementation candidate are documentation and claim-wording changes only.
+The live runtime matches the candidate production build byte for byte.
+
+Fresh phone and desktop checks passed the first-screen job/audience/action,
+filled one-click sample, persistent demo label, reset and real-data isolation,
+populated PDF/JSON, invalid input, malformed import, 12 MB and ten-file
+boundaries, location redaction, offline reload, update flow, keyboard/focus,
+reduced motion, legal routes, links, designed 404, privacy requests, and
+security headers. Axe found zero violations across 28 route, viewport, and
+theme checks. Lighthouse scored 98 performance and 100 for accessibility,
+best practices, and SEO.
+
+Clean checkout commands passed `npm test` (14 tests), typecheck, lint, build,
+all 13 declared claim commands (26 browser results), and the complete 50-test
+browser suite with one worker. Parallel aggregate runs exposed a native
+Chromium 1208 headless-shell `SIGSEGV`; the affected tests pass independently
+and every exact claim command passes with its default two workers. No product
+assertion failed. See `.factory/review-5.md` for full evidence and
+classification.
+
+No known product gap remains. The app is a static local-first PWA, so backend
+tenant, restart, health, and rate-limit checks do not apply.
 
 ## Verification 4 update
 
